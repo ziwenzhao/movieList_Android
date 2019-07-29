@@ -1,4 +1,4 @@
-package com.example.ziwenzhao.movielist;
+package com.example.ziwenzhao.ui.movielist;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.ziwenzhao.movielist", appContext.getPackageName());
+        assertEquals("com.example.ziwenzhao.ui.movielist", appContext.getPackageName());
     }
 }

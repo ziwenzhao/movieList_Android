@@ -1,4 +1,4 @@
-package com.example.ziwenzhao.movielist;
+package com.example.ziwenzhao.ui.movielist;
 
 import org.junit.Test;
 
