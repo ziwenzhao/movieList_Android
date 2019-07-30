@@ -1,16 +1,19 @@
 package com.example.ziwenzhao.models;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import java.io.InputStream;
 
 public class MovieModel {
     private Integer Id;
     private String title;
-    private InputStream inputStream;
+    private Bitmap bitmap;
 
-    public MovieModel(Integer Id, String title, InputStream inputStream) {
+    public MovieModel(Integer Id, String title, Bitmap bitmap) {
         this.Id = Id;
         this.title = title;
-        this.inputStream = inputStream;
+        this.bitmap = bitmap;
     }
 
     public Integer getId() {
@@ -25,11 +28,11 @@ public class MovieModel {
         this.title = title;
     }
 
-    public InputStream getInputStream() {
-        return inputStream;
+    public Bitmap getBitmap() {
+        return bitmap;
     }
 
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 }

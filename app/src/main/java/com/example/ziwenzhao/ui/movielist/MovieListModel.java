@@ -1,5 +1,7 @@
 package com.example.ziwenzhao.ui.movielist;
 
+import android.graphics.Bitmap;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
@@ -24,9 +26,9 @@ public class MovieListModel implements MovieListActivityMVP.Model {
     @Override
     public Observable<List<MovieModel>> getMovieModels() {
 //        List<MovieHttpResult> movieResultList = new ArrayList<>();
-       return repository.getMovieJSONRemote().concatMap(new Function<List<MovieHttpResult>, ObservableSource<List<InputStream>>>() {
+       return repository.getMovieJSONRemote().concatMap(new Function<List<MovieHttpResult>, ObservableSource<List<Bitmap>>>() {
            @Override
-           public ObservableSource<List<InputStream>> apply(List<MovieHttpResult> movieHttpResults) throws Exception {
+           public ObservableSource<List<Bitmap>> apply(List<MovieHttpResult> movieHttpResults) throws Exception {
                movieResultList = movieHttpResults;
                List<String> paths = new ArrayList<>();
                for (MovieHttpResult movieHttpResult: movieHttpResults) {
@@ -34,12 +36,12 @@ public class MovieListModel implements MovieListActivityMVP.Model {
                }
                return repository.getMultipleMovieImageRemote(ImageSize.size_w92, paths);
            }
-       }).map(new Function<List<InputStream>, List<MovieModel>>() {
+       }).map(new Function<List<Bitmap>, List<MovieModel>>() {
            @Override
-           public List<MovieModel> apply(List<InputStream> inputStreams) throws Exception {
+           public List<MovieModel> apply(List<Bitmap> bitmaps) throws Exception {
                List<MovieModel> movieModels = new ArrayList<>();
-               for (int i = 0; i < inputStreams.size(); i++) {
-                   movieModels.add(new MovieModel(movieResultList.get(i).getId(), movieResultList.get(i).getTitle(), inputStreams.get(i)));
+               for (int i = 0; i < bitmaps.size(); i++) {
+                   movieModels.add(new MovieModel(movieResultList.get(i).getId(), movieResultList.get(i).getTitle(), bitmaps.get(i)));
                }
                return movieModels;
            }

@@ -1,5 +1,7 @@
 package com.example.ziwenzhao.models;
 
+import android.graphics.Bitmap;
+
 import com.example.ziwenzhao.Utils.ImageSize;
 
 import java.io.InputStream;
@@ -13,10 +15,10 @@ public interface Repository {
 
     Observable<List<MovieHttpResult>> getMovieJSONRemote();
 
-    Observable<InputStream> getMovieImageLocal();
+    Observable<Bitmap> getMovieImageLocal();
 
-    Observable<InputStream> getMovieImageRemote(ImageSize size, String path);
+    Observable<Bitmap> getMovieImageRemote(ImageSize size, String path);
 
-    Observable<List<InputStream>> getMultipleMovieImageRemote(ImageSize size, List<String> paths);
+    Observable<List<Bitmap>> getMultipleMovieImageRemote(ImageSize size, List<String> paths);
 
 }

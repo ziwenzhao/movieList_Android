@@ -43,7 +43,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Item
     public void onBindViewHolder(ItemViewHolder holder, int position) {
         holder.text.setText(list.get(position).getTitle());
 
-        holder.image.setImageBitmap(BitmapFactory.decodeStream(list.get(position).getInputStream()));
+        holder.image.setImageBitmap(list.get(position).getBitmap());
     }
 
     @Override

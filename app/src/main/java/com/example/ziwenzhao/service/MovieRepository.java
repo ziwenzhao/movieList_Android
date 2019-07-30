@@ -1,5 +1,8 @@
 package com.example.ziwenzhao.service;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import com.example.ziwenzhao.Utils.ImageSize;
 import com.example.ziwenzhao.models.HttpResponse;
 import com.example.ziwenzhao.models.MovieHttpResult;
@@ -50,22 +53,22 @@ public class MovieRepository implements Repository{
     }
 
     @Override
-    public Observable<InputStream> getMovieImageLocal() {
+    public Observable<Bitmap> getMovieImageLocal() {
         return null;
     }
 
     @Override
-    public Observable<InputStream> getMovieImageRemote(ImageSize imageSize, String path) {
-        return movieImageApiService.getMovieImageByPath(imageSize.toString(), path).map(new Function<ResponseBody, InputStream>() {
+    public Observable<Bitmap> getMovieImageRemote(ImageSize imageSize, String path) {
+        return movieImageApiService.getMovieImageByPath(imageSize.toString(), path).map(new Function<ResponseBody, Bitmap>() {
             @Override
-            public InputStream apply(ResponseBody responseBody) throws Exception {
-                return responseBody.byteStream();
+            public Bitmap apply(ResponseBody responseBody) throws Exception {
+                return BitmapFactory.decodeStream(responseBody.byteStream());
             }
         });
     }
 
     @Override
-    public Observable<List<InputStream>> getMultipleMovieImageRemote(ImageSize imageSize, List<String> paths) {
+    public Observable<List<Bitmap>> getMultipleMovieImageRemote(ImageSize imageSize, List<String> paths) {
 
         List<Observable<ResponseBody>> tasks = new ArrayList<>();
 
@@ -73,12 +76,12 @@ public class MovieRepository implements Repository{
             tasks.add(movieImageApiService.getMovieImageByPath(imageSize.toString(), paths.get(i)));
         }
 
-        return Observable.zip(tasks, new Function<Object[], List<InputStream>>() {
+        return Observable.zip(tasks, new Function<Object[], List<Bitmap>>() {
             @Override
-            public List<InputStream> apply(Object[] objects) throws Exception {
-                List<InputStream> list = new ArrayList<>();
+            public List<Bitmap> apply(Object[] objects) throws Exception {
+                List<Bitmap> list = new ArrayList<>();
                 for (Object object: objects) {
-                    list.add(((ResponseBody) object).byteStream());
+                    list.add(BitmapFactory.decodeStream(((ResponseBody) object).byteStream()));
                 }
                 return list;
             }
