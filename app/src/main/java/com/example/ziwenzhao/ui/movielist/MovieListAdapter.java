@@ -35,7 +35,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Item
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        holder.text.setText("efa");
+        holder.text.setText(list.get(position).getTitle());
     }
 
     @Override

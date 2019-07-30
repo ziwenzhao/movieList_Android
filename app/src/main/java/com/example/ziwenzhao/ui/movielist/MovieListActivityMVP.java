@@ -8,14 +8,14 @@ import java.util.List;
 
 public interface MovieListActivityMVP {
     interface View {
-        void updateData();
-
+        void updateData(List<MovieHttpResult> movieList);
+        void showSnackbar(String s);
     }
 
     interface Presenter {
         void loadData();
 
-        void attachView();
+        void attachView(MovieListActivityMVP.View view);
 
         void detachView();
     }
