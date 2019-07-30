@@ -3,11 +3,13 @@ package com.example.ziwenzhao.ui.movielist;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import com.example.ziwenzhao.App;
+import com.example.ziwenzhao.Utils.MovieListDiffUtilCallBack;
 import com.example.ziwenzhao.models.MovieHttpResult;
 
 import java.util.ArrayList;
@@ -41,8 +43,6 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
 
         ButterKnife.bind(this);
 
-        movieList.add(new MovieHttpResult());
-        movieList.add(new MovieHttpResult());
         movieListAdapter = new MovieListAdapter(movieList);
         recyclerView.setAdapter(movieListAdapter);
         recyclerView.setHasFixedSize(true);
@@ -64,9 +64,10 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
 
     @Override
     public void updateData(List<MovieHttpResult> movieHttpResults) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MovieListDiffUtilCallBack(movieList, movieHttpResults));
+        diffResult.dispatchUpdatesTo(movieListAdapter);
         movieList.clear();
         movieList.addAll(movieHttpResults);
-        movieListAdapter.notifyDataSetChanged();
     }
 
     @Override
