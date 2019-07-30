@@ -41,7 +41,7 @@ public class MovieRepository implements Repository{
         });
     }
 
-    private Boolean isStale() {
+    private boolean isStale() {
         return System.currentTimeMillis() - timeStamp > EXPIRE_DURATION;
     }
 }

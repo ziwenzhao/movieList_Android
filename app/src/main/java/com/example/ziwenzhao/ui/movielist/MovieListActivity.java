@@ -47,17 +47,9 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
 
         ButterKnife.bind(this);
 
-        movieListAdapter = new MovieListAdapter(movieList);
-        recyclerView.setAdapter(movieListAdapter);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        initRecyclerView();
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                presenter.loadData();
-            }
-        });
+        setRefreshListener();
     }
 
     @Override
@@ -89,5 +81,21 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     @Override
     public void setLoading(boolean isLoading) {
         swipeRefreshLayout.setRefreshing(isLoading);
+    }
+
+    private void initRecyclerView() {
+        movieListAdapter = new MovieListAdapter(movieList);
+        recyclerView.setAdapter(movieListAdapter);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void setRefreshListener() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.loadData();
+            }
+        });
     }
 }
