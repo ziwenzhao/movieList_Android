@@ -1,6 +1,7 @@
 package com.example.ziwenzhao.ui.movielist;
 
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.util.DiffUtil;
@@ -28,6 +29,9 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     @BindView(R.id.root_view)
     ViewGroup rootView;
 
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout swipeRefreshLayout;
+
     @Inject
     MovieListActivityMVP.Presenter presenter;
 
@@ -37,8 +41,8 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.movie_list);
 
+        setContentView(R.layout.movie_list);
         ((App) getApplication()).getComponent().inject(this);
 
         ButterKnife.bind(this);
@@ -47,6 +51,13 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
         recyclerView.setAdapter(movieListAdapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.loadData();
+            }
+        });
     }
 
     @Override
@@ -73,5 +84,10 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     @Override
     public void showSnackbar(String msg) {
         Snackbar.make(rootView, msg, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void setLoading(boolean isLoading) {
+        swipeRefreshLayout.setRefreshing(isLoading);
     }
 }

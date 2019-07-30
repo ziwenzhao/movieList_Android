@@ -10,6 +10,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -24,10 +25,17 @@ public class MovieListPresenter implements MovieListActivityMVP.Presenter {
 
     @Override
     public void loadData() {
+        view.setLoading(true);
         subscription = model
                 .getMovies()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnTerminate(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        view.setLoading(false);
+                    }
+                })
                 .subscribeWith(new DisposableObserver<List<MovieHttpResult>>() {
                     @Override
                     public void onNext(List<MovieHttpResult> movieHttpResults) {
