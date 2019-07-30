@@ -3,6 +3,7 @@ package com.example.ziwenzhao.ui.movielist;
 import android.util.Log;
 
 import com.example.ziwenzhao.models.MovieHttpResult;
+import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.List;
 
@@ -19,13 +20,14 @@ public class MovieListPresenter implements MovieListActivityMVP.Presenter {
 
     public MovieListPresenter(MovieListActivityMVP.Model model) {
         this.model = model;
+        this.subscriptions = new CompositeDisposable();
     }
 
     @Override
     public void loadData() {
         view.setLoading(true);
         subscriptions.add(model
-                .getMovies()
+                .getMovieModels()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(new Action() {
@@ -34,10 +36,10 @@ public class MovieListPresenter implements MovieListActivityMVP.Presenter {
                         view.setLoading(false);
                     }
                 })
-                .subscribeWith(new DisposableObserver<List<MovieHttpResult>>() {
+                .subscribeWith(new DisposableObserver<List<MovieModel>>() {
                     @Override
-                    public void onNext(List<MovieHttpResult> movieHttpResults) {
-                        view.updateData(movieHttpResults);
+                    public void onNext(List<MovieModel> movieModels) {
+                        view.updateData(movieModels);
                     }
 
                     @Override

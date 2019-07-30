@@ -3,13 +3,14 @@ package com.example.ziwenzhao.ui.movielist;
 import io.reactivex.Observable;
 
 import com.example.ziwenzhao.models.MovieHttpResult;
+import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.List;
 
 public interface MovieListActivityMVP {
     interface View {
 
-        void updateData(List<MovieHttpResult> movieList);
+        void updateData(List<MovieModel> movieModels);
 
         void showSnackbar(String s);
 
@@ -25,6 +26,6 @@ public interface MovieListActivityMVP {
     }
 
     interface Model {
-        Observable<List<MovieHttpResult>> getMovies();
+        Observable<List<MovieModel>> getMovieModels();
     }
 }

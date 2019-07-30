@@ -3,14 +3,15 @@ package com.example.ziwenzhao.Utils;
 import android.support.v7.util.DiffUtil;
 
 import com.example.ziwenzhao.models.MovieHttpResult;
+import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.List;
 
 public class MovieListDiffUtilCallBack extends DiffUtil.Callback {
-    private List<MovieHttpResult> oldList;
-    private List<MovieHttpResult> newList;
+    private List<MovieModel> oldList;
+    private List<MovieModel> newList;
 
-    public MovieListDiffUtilCallBack(List<MovieHttpResult> oldList, List<MovieHttpResult> newList) {
+    public MovieListDiffUtilCallBack(List<MovieModel> oldList, List<MovieModel> newList) {
         this.oldList = oldList;
         this.newList = newList;
     }

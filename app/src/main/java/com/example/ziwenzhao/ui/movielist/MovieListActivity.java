@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.example.ziwenzhao.App;
 import com.example.ziwenzhao.Utils.MovieListDiffUtilCallBack;
 import com.example.ziwenzhao.models.MovieHttpResult;
+import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     MovieListActivityMVP.Presenter presenter;
 
     private MovieListAdapter movieListAdapter;
-    private List<MovieHttpResult> movieList = new ArrayList<>();
+    private List<MovieModel> movieList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +67,11 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     }
 
     @Override
-    public void updateData(List<MovieHttpResult> movieHttpResults) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MovieListDiffUtilCallBack(movieList, movieHttpResults));
+    public void updateData(List<MovieModel> movieModels) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MovieListDiffUtilCallBack(movieList, movieModels));
         diffResult.dispatchUpdatesTo(movieListAdapter);
         movieList.clear();
-        movieList.addAll(movieHttpResults);
+        movieList.addAll(movieModels);
     }
 
     @Override

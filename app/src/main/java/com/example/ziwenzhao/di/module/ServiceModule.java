@@ -2,7 +2,8 @@ package com.example.ziwenzhao.di.module;
 
 import com.example.ziwenzhao.Utils.Constants;
 import com.example.ziwenzhao.models.Repository;
-import com.example.ziwenzhao.service.MovieApiService;
+import com.example.ziwenzhao.service.MovieJSONApiService;
+import com.example.ziwenzhao.service.MovieImageApiService;
 import com.example.ziwenzhao.service.MovieRepository;
 
 import java.io.IOException;
@@ -44,15 +45,30 @@ public class ServiceModule {
                 .build();
     }
 
-    @Provides
-    @Singleton
-    public MovieApiService provideMovieApiService() {
-        return provideRetrofit(Constants.REST_URL, provideHttpClient()).create(MovieApiService.class);
+    private Retrofit provideRetrofit2(String restUrl, OkHttpClient client) {
+        return new Retrofit.Builder()
+                .baseUrl(restUrl)
+                .client(client)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
     }
 
     @Provides
     @Singleton
-    public Repository provideRepository(MovieApiService movieApiService) {
-        return new MovieRepository(movieApiService);
+    public MovieJSONApiService provideMovieJSONApiService() {
+        return provideRetrofit(Constants.REST_URL_Movie_JSON, provideHttpClient()).create(MovieJSONApiService.class);
+    }
+
+    @Provides
+    @Singleton
+    MovieImageApiService provideMovieImageService() {
+        return provideRetrofit2(Constants.REST_URL_Movie_Image, provideHttpClient()).create(MovieImageApiService.class);
+    }
+
+    @Provides
+    @Singleton
+    public Repository provideRepository(MovieJSONApiService movieJSONApiService, MovieImageApiService movieImageApiService) {
+        return new MovieRepository(movieJSONApiService, movieImageApiService);
     }
 }
