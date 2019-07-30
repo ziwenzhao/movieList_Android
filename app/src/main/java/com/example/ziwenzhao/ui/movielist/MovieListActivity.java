@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ViewGroup;
 
 import com.example.ziwenzhao.App;
@@ -18,7 +17,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.observers.DisposableObserver;
 
 public class MovieListActivity extends AppCompatActivity implements  MovieListActivityMVP.View {
 
@@ -37,7 +35,7 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_list);
+        setContentView(R.layout.movie_list);
 
         ((App) getApplication()).getComponent().inject(this);
 
