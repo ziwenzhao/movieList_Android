@@ -12,13 +12,19 @@ import com.example.ziwenzhao.models.MovieHttpResult;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.observers.DisposableObserver;
 
 public class MovieListActivity extends AppCompatActivity implements  MovieListActivityMVP.View {
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+
+    @Inject
+    MovieListActivityMVP.Model movieListActivityModel;
 
     private MovieListAdapter movieListAdapter;
     private List<MovieHttpResult> movieList =  new ArrayList<>();
@@ -38,7 +44,6 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
         recyclerView.setAdapter(movieListAdapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.example.ziwenzhao.ui.movielist;
 
-import android.database.Observable;
+import io.reactivex.Observable;
 
 import com.example.ziwenzhao.models.MovieHttpResult;
+
+import java.util.List;
 
 public interface MovieListActivityMVP {
     interface View {
@@ -19,6 +21,6 @@ public interface MovieListActivityMVP {
     }
 
     interface Model {
-        Observable<MovieHttpResult> getMovies();
+        Observable<List<MovieHttpResult>> getMovies();
     }
 }
