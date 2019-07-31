@@ -7,38 +7,25 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
-import android.util.Log;
 
 import com.example.ziwenzhao.Utils.ImageSize;
 import com.example.ziwenzhao.db.Database;
 import com.example.ziwenzhao.db.MoviePersistData;
-import com.example.ziwenzhao.db.MoviePersistDataDao;
-import com.example.ziwenzhao.models.HttpResponse;
 import com.example.ziwenzhao.models.MovieHttpResult;
 import com.example.ziwenzhao.models.MovieModel;
 import com.example.ziwenzhao.models.Repository;
-import com.example.ziwenzhao.ui.movielist.R;
+import com.example.ziwenzhao.Utils.Callback;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import okhttp3.ResponseBody;
+
 
 public class MovieRepository implements Repository{
 
@@ -72,22 +59,8 @@ public class MovieRepository implements Repository{
     public Observable<List<MovieHttpResult>> getMovieJSONRemote() {
 
         return this.movieJSONApiService.getMoives()
-                .map(new Function<HttpResponse, List<MovieHttpResult>>() {
-
-                    @Override
-                    public List<MovieHttpResult> apply(HttpResponse httpResponse) throws Exception {
-
-                        return httpResponse.getResults();
-                    }
-                })
-                .doOnNext(new Consumer<List<MovieHttpResult>>() {
-
-                    @Override
-                    public void accept(List<MovieHttpResult> movieHttpResults) throws Exception {
-
-                         movieResultList = movieHttpResults;
-                    }
-                });
+                .map(httpResponse -> httpResponse.getResults())
+                .doOnNext(movieHttpResults -> movieResultList = movieHttpResults);
     }
 
 
@@ -95,14 +68,7 @@ public class MovieRepository implements Repository{
     public Observable<Bitmap> getMovieImageRemote(ImageSize imageSize, String path) {
 
         return movieImageApiService.getMovieImageByPath(imageSize.toString(), path)
-                .map(new Function<ResponseBody, Bitmap>() {
-
-                    @Override
-                    public Bitmap apply(ResponseBody responseBody) throws Exception {
-
-                        return BitmapFactory.decodeStream(responseBody.byteStream());
-                    }
-                });
+                .map(responseBody -> BitmapFactory.decodeStream(responseBody.byteStream()));
     }
 
 
@@ -114,116 +80,107 @@ public class MovieRepository implements Repository{
             tasks.add(movieImageApiService.getMovieImageByPath(imageSize.toString(), paths.get(i)));
         }
 
-        return Observable.zip(tasks, new Function<Object[], List<Bitmap>>() {
+        return Observable.zip(tasks, objects -> {
 
-            @Override
-            public List<Bitmap> apply(Object[] objects) throws Exception {
+            List<Bitmap> list = new ArrayList<>();
 
-                List<Bitmap> list = new ArrayList<>();
-
-                for (Object object: objects) {
-                    list.add(BitmapFactory.decodeStream(((ResponseBody) object).byteStream()));
-                }
-
-                return list;
+            for (Object object: objects) {
+                list.add(BitmapFactory.decodeStream(((ResponseBody) object).byteStream()));
             }
+
+            return list;
         });
     }
 
 
     public Observable<List<MovieModel>> getMovieModelsRemote() {
 
-
-        return getMovieJSONRemote()
-                .concatMap(new Function<List<MovieHttpResult>, ObservableSource<List<Bitmap>>>() {
-
-                    @Override
-                    public ObservableSource<List<Bitmap>> apply(List<MovieHttpResult> movieHttpResults) throws Exception {
-
-                        movieResultList = movieHttpResults;
-
-                        List<String> paths = new ArrayList<>();
-                        for (MovieHttpResult movieHttpResult: movieHttpResults) {
-                            paths.add(movieHttpResult.getPosterPath().substring(1));
-                        }
-
-                        return getMultipleMovieImageRemote(ImageSize.size_w154, paths);
-                    }
-                }).concatMap(new Function<List<Bitmap>, Observable<List<MovieModel>>>() {
-
-                    @Override
-                    public Observable<List<MovieModel>> apply(final List<Bitmap> bitmaps) throws Exception {
-
-                        return Observable.create(new ObservableOnSubscribe<List<MovieModel>>() {
-
-                            @Override
-                            public void subscribe(final ObservableEmitter<List<MovieModel>> emitter) throws Exception {
-
-                                final List<MovieModel> movieModels = new ArrayList<>();
-                                for (int i = 0; i < bitmaps.size(); i++) {
-                                    movieModels.add(new MovieModel(movieResultList.get(i).getId(), movieResultList.get(i).getTitle(), bitmaps.get(i)));
-                                }
-
-                                List<MoviePersistData> moviePersistDataList = new ArrayList<>();
-                                for (MovieModel movieModel: movieModels) {
-                                    moviePersistDataList.add(convertMovieModelToPersistData(movieModel));
-                                }
-
-                                new AsyncTask<List<MoviePersistData>, Void, Void>() {
-
-                                    @Override
-                                    protected Void doInBackground(List<MoviePersistData>... lists) {
-
-                                        refreshDatabase(lists[0]);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    protected void onPostExecute(Void v) {
-
-                                        emitter.onNext(movieModels);
-                                        emitter.onComplete();
-                                    }
-                                }.execute(moviePersistDataList);
-                            }
-                        });
-
-                    }
-                });
+        return getMovieJSONRemote().concatMap(mapMovieHttpResultToBitmapRequest()).concatMap(mapToMovieModelListRequest());
     }
 
 
     public Observable<List<MovieModel>> getMovieModelsLocal() {
 
-        return Observable.create(new ObservableOnSubscribe<List<MovieModel>>() {
+        return Observable.create(emitter -> new AsyncTask<Void, Void, List<MovieModel>>() {
 
             @Override
-            public void subscribe(final ObservableEmitter<List<MovieModel>> emitter) throws Exception {
+            protected List<MovieModel> doInBackground(Void... voids) {
 
-                new AsyncTask<Void, Void, List<MovieModel>>() {
+                List<MoviePersistData> moviePersistDataList = database.moviePersistDataDao().getAll();
 
-                    @Override
-                    protected List<MovieModel> doInBackground(Void... voids) {
+                List<MovieModel> movieModelList = new ArrayList<>();
+                for (MoviePersistData moviePersistData: moviePersistDataList) {
+                    movieModelList.add(convertMoviePersistDataToModel(moviePersistData));
+                }
 
-                        List<MoviePersistData> moviePersistDataList = database.moviePersistDataDao().getAll();
-
-                        List<MovieModel> movieModelList = new ArrayList<>();
-                        for (MoviePersistData moviePersistData: moviePersistDataList) {
-                            movieModelList.add(convertMoviePersistDataToModel(moviePersistData));
-                        }
-
-                        return  movieModelList;
-                    }
-
-                    @Override
-                    protected void onPostExecute(List<MovieModel> list) {
-
-                        emitter.onNext(list);
-                        emitter.onComplete();
-                    }
-                }.execute();
+                return  movieModelList;
             }
+
+            @Override
+            protected void onPostExecute(List<MovieModel> list) {
+
+                emitter.onNext(list);
+                emitter.onComplete();
+            }
+        }.execute());
+    }
+
+
+    private Function<List<MovieHttpResult>, ObservableSource<List<Bitmap>>> mapMovieHttpResultToBitmapRequest() {
+        return movieHttpResults -> {
+
+            movieResultList = movieHttpResults;
+
+            List<String> paths = new ArrayList<>();
+            for (MovieHttpResult movieHttpResult : movieHttpResults) {
+                paths.add(movieHttpResult.getPosterPath().substring(1));
+            }
+
+            return getMultipleMovieImageRemote(ImageSize.size_w154, paths);
+        };
+    }
+
+
+    private Function<List<Bitmap>, Observable<List<MovieModel>>> mapToMovieModelListRequest() {
+
+
+        return bitmaps -> Observable.create((ObservableOnSubscribe<List<MovieModel>>) emitter -> {
+
+            final List<MovieModel> movieModels = new ArrayList<>();
+            for (int i = 0; i < bitmaps.size(); i++) {
+                movieModels.add(new MovieModel(movieResultList.get(i).getId(), movieResultList.get(i).getTitle(), bitmaps.get(i)));
+            }
+
+            List<MoviePersistData> moviePersistDataList = new ArrayList<>();
+            for (MovieModel movieModel: movieModels) {
+                moviePersistDataList.add(convertMovieModelToPersistData(movieModel));
+            }
+
+            refreshDatabaseAsyncTask(moviePersistDataList, (Callback) () -> { emitter.onNext(movieModels); emitter.onComplete(); });
         });
+    }
+
+    @Override
+    public void refreshDatabaseAsyncTask(final List<MoviePersistData> moviePersistDataList, Callback callback) {
+
+        new AsyncTask<List<MoviePersistData>, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(List<MoviePersistData>... lists) {
+
+                database.moviePersistDataDao().deleteAll();
+                database.moviePersistDataDao().insertAll(lists[0]);
+
+                updateLastSyncTimeStamp();
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                callback.apply();
+            }
+        }.execute(moviePersistDataList);
     }
 
 
@@ -262,15 +219,6 @@ public class MovieRepository implements Repository{
 
         editor.putLong("lastSyncTimeStamp", timeStamp);
         editor.commit();
-    }
-
-
-    private void refreshDatabase(List<MoviePersistData> list) {
-
-        database.moviePersistDataDao().deleteAll();
-        database.moviePersistDataDao().insertAll(list);
-
-        updateLastSyncTimeStamp();
     }
 
 

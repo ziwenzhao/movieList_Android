@@ -2,7 +2,6 @@ package com.example.ziwenzhao.ui.movielist;
 
 import io.reactivex.Observable;
 
-import com.example.ziwenzhao.models.MovieHttpResult;
 import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.List;

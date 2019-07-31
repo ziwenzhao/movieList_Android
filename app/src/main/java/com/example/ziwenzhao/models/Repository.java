@@ -2,9 +2,10 @@ package com.example.ziwenzhao.models;
 
 import android.graphics.Bitmap;
 
+import com.example.ziwenzhao.Utils.Callback;
 import com.example.ziwenzhao.Utils.ImageSize;
+import com.example.ziwenzhao.db.MoviePersistData;
 
-import java.io.InputStream;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -45,4 +46,12 @@ public interface Repository {
      * @return return an observable of movieModels collection.
      */
     Observable<List<MovieModel>> getMovieModels();
+
+    /**
+     * Refresh Database and apply callback function
+     *
+     * @param moviePersistDataList the data used to refresh the database
+     * @param callback callback function which will be invoked after database refreshing
+     */
+    void refreshDatabaseAsyncTask(final List<MoviePersistData> moviePersistDataList, Callback callback);
 }

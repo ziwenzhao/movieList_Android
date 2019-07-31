@@ -1,7 +1,5 @@
 package com.example.ziwenzhao.service;
 
-import java.io.InputStream;
-
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.http.GET;

@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 
 import com.example.ziwenzhao.App;
 import com.example.ziwenzhao.Utils.MovieListDiffUtilCallBack;
-import com.example.ziwenzhao.models.MovieHttpResult;
 import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.ArrayList;

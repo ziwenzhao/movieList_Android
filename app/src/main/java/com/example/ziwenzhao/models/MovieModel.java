@@ -1,9 +1,6 @@
 package com.example.ziwenzhao.models;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
-import java.io.InputStream;
 
 public class MovieModel {
     private Integer Id;
