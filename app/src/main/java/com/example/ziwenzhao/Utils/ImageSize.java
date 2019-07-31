@@ -11,7 +11,7 @@ public enum ImageSize {
 
     private final String size;
 
-    private ImageSize(String size) {
+    ImageSize(String size) {
         this.size = size;
     }
 

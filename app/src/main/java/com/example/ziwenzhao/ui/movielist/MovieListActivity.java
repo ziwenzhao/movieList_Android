@@ -16,7 +16,6 @@ import com.example.ziwenzhao.Utils.MovieListDiffUtilCallBack;
 import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -27,13 +26,13 @@ import butterknife.ButterKnife;
 public class MovieListActivity extends AppCompatActivity implements  MovieListActivityMVP.View {
 
     @BindView(R.id.recycler_view)
-    RecyclerView recyclerView;
+    RecyclerView recyclerView; // RecyclerView is a more advanced and flexible version of ListView.
 
     @BindView(R.id.root_view)
     ViewGroup rootView;
 
     @BindView(R.id.swipe_refresh)
-    SwipeRefreshLayout swipeRefreshLayout;
+    SwipeRefreshLayout swipeRefreshLayout; // SwipeRefreshLayout can refresh the contents of a view via a vertical swipe gesture.
 
     @Inject
     MovieListActivityMVP.Presenter presenter;
@@ -43,12 +42,13 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.movie_list);
         ((App) getApplication()).getComponent().inject(this);
 
-        ButterKnife.bind(this);
+        ButterKnife.bind(this); // View binding through annotation
 
         initRecyclerView();
 
@@ -58,6 +58,7 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     @Override
     protected  void onStart() {
         super.onStart();
+
         presenter.attachView(this);
         presenter.loadData();
     }
@@ -65,28 +66,26 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
     @Override
     protected void onStop() {
         super.onStop();
+
         presenter.detachView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void updateData(List<MovieModel> movieModels) {
-        movieModels.sort(new Comparator<MovieModel>() {
-            @Override
-            public int compare(MovieModel m1, MovieModel m2) {
-                return m1.getTitle().compareTo(m2.getTitle());
-            }
-        });
+
+        movieModels.sort((m1, m2) -> m1.getTitle().compareTo(m2.getTitle()));
+
+        // Use DiffUtil to calculate the minimum operations for updating list.
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MovieListDiffUtilCallBack(movieList, movieModels));
         diffResult.dispatchUpdatesTo(movieListAdapter);
+
         movieList.clear();
         movieList.addAll(movieModels);
     }
 
     @Override
-    public void showSnackbar(String msg) {
-        Snackbar.make(rootView, msg, Snackbar.LENGTH_SHORT).show();
-    }
+    public void showSnackbar(String msg) { Snackbar.make(rootView, msg, Snackbar.LENGTH_SHORT).show(); }
 
     @Override
     public void setLoading(boolean isLoading) {
@@ -95,17 +94,13 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
 
     private void initRecyclerView() {
         movieListAdapter = new MovieListAdapter(movieList);
+
         recyclerView.setAdapter(movieListAdapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void setRefreshListener() {
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                presenter.loadData();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.loadData());
     }
 }

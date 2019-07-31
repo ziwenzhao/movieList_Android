@@ -11,8 +11,12 @@ import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.List;
 
-
+/**
+ * MovieListAdapter extends the RecyclerView Adapter.
+ * It provides a binding from a data set to views that are displayed within a RecyclerView.
+ */
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.ItemViewHolder> {
+
     private List<MovieModel> list;
 
     public MovieListAdapter(List<MovieModel> list) {
@@ -20,10 +24,14 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Item
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
+
         public TextView text;
+
         public ImageView image;
+
         public ItemViewHolder(View itemView) {
             super(itemView);
+
             text = itemView.findViewById(R.id.text);
             image = itemView.findViewById(R.id.image);
         }

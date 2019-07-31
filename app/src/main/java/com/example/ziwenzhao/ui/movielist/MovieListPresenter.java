@@ -13,8 +13,11 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class MovieListPresenter implements MovieListActivityMVP.Presenter {
+
     private MovieListActivityMVP.View view;
+
     private MovieListActivityMVP.Model model;
+
     private CompositeDisposable subscriptions;
 
     public MovieListPresenter(MovieListActivityMVP.Model model) {
@@ -43,7 +46,6 @@ public class MovieListPresenter implements MovieListActivityMVP.Presenter {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e("Getting Movies Fail", e.toString());
                         if (view != null) {
                             view.showSnackbar("Unable to get movies");
                         }

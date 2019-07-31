@@ -6,7 +6,11 @@ import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.List;
 
+/**
+ * MovieListActivityMVP is an interface for defining the MVP pattern.
+ */
 public interface MovieListActivityMVP {
+
     interface View {
 
         void updateData(List<MovieModel> movieModels);
@@ -26,6 +30,8 @@ public interface MovieListActivityMVP {
     }
 
     interface Model {
+
         Observable<List<MovieModel>> getMovieModels();
+
     }
 }
