@@ -18,6 +18,7 @@ public interface MovieListActivityMVP {
     }
 
     interface Presenter {
+
         void loadData();
 
         void attachView(MovieListActivityMVP.View view);
