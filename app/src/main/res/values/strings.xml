@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Movie List</string>
+    <string name="preference_file_key">movie_list_app</string>
+    <string name="last_sync_timestamp">lastSyncTimeStamp</string>
 </resources>

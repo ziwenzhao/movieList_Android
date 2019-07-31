@@ -15,6 +15,7 @@ import com.example.ziwenzhao.models.MovieHttpResult;
 import com.example.ziwenzhao.models.MovieModel;
 import com.example.ziwenzhao.models.Repository;
 import com.example.ziwenzhao.Utils.Callback;
+import com.example.ziwenzhao.ui.movielist.R;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -228,9 +229,11 @@ public class MovieRepository implements Repository{
 
             @Override
             protected Void doInBackground(Void... voids) {
+                String preferenceFileKey = context.getString(R.string.preference_file_key);
+                String lastSyncTimestampKey = context.getString(R.string.last_sync_timestamp);
 
-                SharedPreferences sharedPref = context.getSharedPreferences("movie_list_app", Context.MODE_PRIVATE);
-                timeStamp = sharedPref.contains("lastSyncTimeStamp") ? sharedPref.getLong("lastSyncTimeStamp", 0) : 0;
+                SharedPreferences sharedPref = context.getSharedPreferences(preferenceFileKey, Context.MODE_PRIVATE);
+                timeStamp = sharedPref.contains(lastSyncTimestampKey) ? sharedPref.getLong(lastSyncTimestampKey, 0) : 0;
                 return null;
             }
         }.execute();
