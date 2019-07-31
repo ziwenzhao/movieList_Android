@@ -123,7 +123,7 @@ public class MovieRepository implements Repository{
                 for (MovieHttpResult movieHttpResult: movieHttpResults) {
                     paths.add(movieHttpResult.getPosterPath().substring(1));
                 }
-                return getMultipleMovieImageRemote(ImageSize.size_w92, paths);
+                return getMultipleMovieImageRemote(ImageSize.size_w154, paths);
             }
         }).concatMap(new Function<List<Bitmap>, Observable<List<MovieModel>>>() {
             @Override
