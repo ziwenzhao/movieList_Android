@@ -134,17 +134,15 @@ public class MovieRepository implements Repository{
                             movieModels.add(new MovieModel(movieResultList.get(i).getId(), movieResultList.get(i).getTitle(), bitmaps.get(i)));
                         }
 
-                        List<MoviePersistData> list = new ArrayList<>();
+                        List<MoviePersistData> moviePersistDataList = new ArrayList<>();
                         for (MovieModel movieModel: movieModels) {
-                            list.add(convertMovieModelToPersistData(movieModel));
+                            moviePersistDataList.add(convertMovieModelToPersistData(movieModel));
                         }
                         new AsyncTask<List<MoviePersistData>, Void, Void>() {
 
                             @Override
                             protected Void doInBackground(List<MoviePersistData>... lists) {
-                                database.moviePersistDataDao().deleteAll();
-                                database.moviePersistDataDao().insertAll(lists[0]);
-                                updateLastSyncTimeStamp();
+                                refreshDatabase(lists[0]);
                                 return null;
                             }
 
@@ -153,40 +151,20 @@ public class MovieRepository implements Repository{
                                 emitter.onNext(movieModels);
                                 emitter.onComplete();
                             }
-                        }.execute(list);
+                        }.execute(moviePersistDataList);
                     }
                 });
 
-//                return Observable.create(new ObservableOnSubscribe<Object>() {
-//
-//                    @Override
-//                    public void subscribe(ObservableEmitter<Object> emitter) throws Exception {
-//                        new RefreshDataAsyncTask().execute(bitmaps)
-//                    }
-//                })
-//                return Observable.create(new ObservableOnSubscribe<List<MovieModel>>() {
-//
-//                    @Override
-//                    public void subscribe(ObservableEmitter<MovieModel> emitter) throws Exception {
-//
-//                    }
-//                })
-//                new RefreshDataAsyncTask().execute(list);
-//                return movieModels;
             }
         });
     }
 
-//    public class RefreshDataAsyncTask extends AsyncTask<List<MoviePersistData>, Void, Void> {
-//        @Override
-//        protected Void doInBackground(List<MoviePersistData>... lists) {
-//            database.moviePersistDataDao().deleteAll();
-//            database.moviePersistDataDao().insertAll(lists[0]);
-//            updateLastSyncTimeStamp();
-//            return null;
-//        }
-//
-//    }
+    private void refreshDatabase(List<MoviePersistData> list) {
+        database.moviePersistDataDao().deleteAll();
+        database.moviePersistDataDao().insertAll(list);
+        updateLastSyncTimeStamp();
+    }
+
     public Observable<List<MovieModel>> getMovieModelsLocal() {
         return Observable.create(new ObservableOnSubscribe<List<MovieModel>>() {
             @Override
