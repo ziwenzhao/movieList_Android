@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:name="com.example.ziwenzhao.App"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        >
         <activity android:name="com.example.ziwenzhao.ui.movielist.MovieListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

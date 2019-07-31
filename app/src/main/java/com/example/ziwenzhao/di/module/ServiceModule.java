@@ -1,7 +1,11 @@
 package com.example.ziwenzhao.di.module;
 
+import android.arch.persistence.room.Room;
+import android.content.Context;
+
 import com.example.ziwenzhao.Utils.Constants;
 import com.example.ziwenzhao.models.Repository;
+import com.example.ziwenzhao.db.Database;
 import com.example.ziwenzhao.service.MovieJSONApiService;
 import com.example.ziwenzhao.service.MovieImageApiService;
 import com.example.ziwenzhao.service.MovieRepository;
@@ -70,5 +74,11 @@ public class ServiceModule {
     @Singleton
     public Repository provideRepository(MovieJSONApiService movieJSONApiService, MovieImageApiService movieImageApiService) {
         return new MovieRepository(movieJSONApiService, movieImageApiService);
+    }
+
+    @Provides
+    @Singleton
+    public Database provideDatabase(Context context) {
+        return Room.databaseBuilder(context, Database.class, "movie").build();
     }
 }
