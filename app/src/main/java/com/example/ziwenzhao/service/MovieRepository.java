@@ -1,11 +1,14 @@
 package com.example.ziwenzhao.service;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.example.ziwenzhao.Utils.ImageSize;
+import com.example.ziwenzhao.db.Database;
 import com.example.ziwenzhao.models.HttpResponse;
 import com.example.ziwenzhao.models.MovieHttpResult;
+import com.example.ziwenzhao.models.MovieModel;
 import com.example.ziwenzhao.models.Repository;
 
 import java.io.InputStream;
@@ -15,21 +18,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import okhttp3.ResponseBody;
 
 public class MovieRepository implements Repository{
-    private List<MovieHttpResult> movieList;
+    private List<MovieHttpResult> movieResultList;
     private MovieJSONApiService movieJSONApiService;
     private MovieImageApiService movieImageApiService;
     private long timeStamp;
     private static final long EXPIRE_DURATION = 60 * 1000;
 
-    public MovieRepository(MovieJSONApiService movieJSONApiService, MovieImageApiService movieImageApiService) {
+    public MovieRepository(Context context, Database database, MovieJSONApiService movieJSONApiService, MovieImageApiService movieImageApiService) {
         this.movieJSONApiService = movieJSONApiService;
         this.movieImageApiService = movieImageApiService;
-        movieList = new ArrayList<>();
+        movieResultList = new ArrayList<>();
     }
 
     @Override
@@ -47,7 +51,7 @@ public class MovieRepository implements Repository{
         }).doOnNext(new Consumer<List<MovieHttpResult>>() {
             @Override
             public void accept(List<MovieHttpResult> movieHttpResults) throws Exception {
-                movieList = movieHttpResults;
+                movieResultList = movieHttpResults;
             }
         });
     }
@@ -88,7 +92,41 @@ public class MovieRepository implements Repository{
         });
     }
 
+    public Observable<List<MovieModel>> getMovieModelsRemote() {
+        return getMovieJSONRemote().concatMap(new Function<List<MovieHttpResult>, ObservableSource<List<Bitmap>>>() {
+            @Override
+            public ObservableSource<List<Bitmap>> apply(List<MovieHttpResult> movieHttpResults) throws Exception {
+                movieResultList = movieHttpResults;
+                List<String> paths = new ArrayList<>();
+                for (MovieHttpResult movieHttpResult: movieHttpResults) {
+                    paths.add(movieHttpResult.getPosterPath().substring(1));
+                }
+                return getMultipleMovieImageRemote(ImageSize.size_w92, paths);
+            }
+        }).map(new Function<List<Bitmap>, List<MovieModel>>() {
+            @Override
+            public List<MovieModel> apply(List<Bitmap> bitmaps) throws Exception {
+                List<MovieModel> movieModels = new ArrayList<>();
+                for (int i = 0; i < bitmaps.size(); i++) {
+                    movieModels.add(new MovieModel(movieResultList.get(i).getId(), movieResultList.get(i).getTitle(), bitmaps.get(i)));
+                }
+
+                return movieModels;
+            }
+        });
+    }
+
+    public Observable<List<MovieModel>> getMovieModelsLocal() {
+        return null;
+    }
+
+    @Override
+    public Observable<List<MovieModel>> getMovieModels() {
+        return isStale() ? getMovieModelsRemote() : getMovieModelsLocal();
+    }
+
     private boolean isStale() {
-        return System.currentTimeMillis() - timeStamp > EXPIRE_DURATION;
+//        return System.currentTimeMillis() - timeStamp > EXPIRE_DURATION;
+        return true;
     }
 }

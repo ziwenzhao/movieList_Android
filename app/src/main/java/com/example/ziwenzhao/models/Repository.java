@@ -21,4 +21,5 @@ public interface Repository {
 
     Observable<List<Bitmap>> getMultipleMovieImageRemote(ImageSize size, List<String> paths);
 
+    Observable<List<MovieModel>> getMovieModels();
 }

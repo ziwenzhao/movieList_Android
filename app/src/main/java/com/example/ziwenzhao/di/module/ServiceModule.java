@@ -72,8 +72,8 @@ public class ServiceModule {
 
     @Provides
     @Singleton
-    public Repository provideRepository(MovieJSONApiService movieJSONApiService, MovieImageApiService movieImageApiService) {
-        return new MovieRepository(movieJSONApiService, movieImageApiService);
+    public Repository provideRepository(Context context, Database database, MovieJSONApiService movieJSONApiService, MovieImageApiService movieImageApiService) {
+        return new MovieRepository(context, database, movieJSONApiService, movieImageApiService);
     }
 
     @Provides
