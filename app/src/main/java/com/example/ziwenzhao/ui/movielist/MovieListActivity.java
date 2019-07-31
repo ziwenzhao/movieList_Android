@@ -1,5 +1,7 @@
 package com.example.ziwenzhao.ui.movielist;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +17,7 @@ import com.example.ziwenzhao.models.MovieHttpResult;
 import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -66,8 +69,15 @@ public class MovieListActivity extends AppCompatActivity implements  MovieListAc
         presenter.detachView();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void updateData(List<MovieModel> movieModels) {
+        movieModels.sort(new Comparator<MovieModel>() {
+            @Override
+            public int compare(MovieModel m1, MovieModel m2) {
+                return m1.getTitle().compareTo(m2.getTitle());
+            }
+        });
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MovieListDiffUtilCallBack(movieList, movieModels));
         diffResult.dispatchUpdatesTo(movieListAdapter);
         movieList.clear();
