@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.example.ziwenzhao.Utils.ImageSize;
@@ -193,7 +196,7 @@ public class MovieRepository implements Repository{
 
     @Override
     public Observable<List<MovieModel>> getMovieModels() {
-        return isStale() ? getMovieModelsRemote() : getMovieModelsLocal();
+        return isStale() && isConnected() ? getMovieModelsRemote() : getMovieModelsLocal();
     }
 
     private MoviePersistData convertMovieModelToPersistData(MovieModel movieModel) {
@@ -231,5 +234,12 @@ public class MovieRepository implements Repository{
 
     private boolean isStale() {
         return timeStamp == 0 ? true : System.currentTimeMillis() - timeStamp > EXPIRE_DURATION;
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 }
