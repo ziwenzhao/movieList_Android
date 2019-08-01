@@ -78,9 +78,10 @@ dependencies {
     testImplementation "org.powermock:powermock-module-junit4:2.0.2"
     testImplementation "org.powermock:powermock-api-mockito2:2.0.2"
 
-    //Espresso
     // Espresso support
     androidTestImplementation "com.android.support.test.espresso:espresso-core:2.0"
     androidTestImplementation "com.android.support.test:runner:0.5"
     androidTestImplementation "com.android.support.test:rules:0.5"
+    implementation "com.android.support.test.espresso:espresso-idling-resource:3.0.2"
+
 }

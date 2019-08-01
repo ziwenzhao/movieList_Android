@@ -44,6 +44,7 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ResponseBody.class, AsyncTask.class, BitmapFactory.class, ConnectivityManager.class})
 public class MovieRepositoryTests {
+
     Context mockContext;
     Database mockDatabase;
     MovieJSONApiService mockMovieJSONApiService;
@@ -54,14 +55,17 @@ public class MovieRepositoryTests {
 
     @Before
     public void setup() {
+
         mockContext = mock(Context.class);
         mockDatabase = mock(Database.class);
         mockMovieJSONApiService = mock(MovieJSONApiService.class);
         mockMovieImageApiService = mock(MovieImageApiService.class);
+
         SharedPreferences mockSharedPreferences = mock(SharedPreferences.class);
         when(mockContext.getSharedPreferences(Mockito.<String>any(), anyInt())).thenReturn(mockSharedPreferences);
         when(mockSharedPreferences.contains(Mockito.<String>any())).thenReturn(true);
         when(mockSharedPreferences.getLong(anyString(), anyLong())).thenReturn(lastSyncTimeStamp);
+
         repository = new MovieRepository(mockContext, mockDatabase, mockMovieJSONApiService, mockMovieImageApiService);
     }
 
@@ -70,6 +74,7 @@ public class MovieRepositoryTests {
     public void shouldGetMovieJsonFromRemote() {
 
         TestObserver<List<MovieHttpResult>> observer = new TestObserver<>();
+
         MovieHttpResult movieHttpResult1 = new MovieHttpResult();
         movieHttpResult1.setId(1);
         movieHttpResult1.setTitle("title1");
@@ -84,8 +89,8 @@ public class MovieRepositoryTests {
         response.setResults(httpResultsList);
 
         when(mockMovieJSONApiService.getMoives()).thenReturn(Observable.just(response));
-        Observable<List<MovieHttpResult>> request = repository.getMovieJSONRemote();
-        request.subscribe(observer);
+        repository.getMovieJSONRemote().subscribe(observer);
+
         observer.assertSubscribed();
         observer.assertComplete();
         observer.assertValue(httpResultsList);
@@ -93,14 +98,20 @@ public class MovieRepositoryTests {
 
     @Test
     public void shouldGetMovieImageFromRemote() {
+
         TestObserver<Bitmap> observer = new TestObserver<>();
+
         final ResponseBody mockResponseBody = PowerMockito.mock(ResponseBody.class);
         PowerMockito.mockStatic(BitmapFactory.class);
         Bitmap mockBitmap = PowerMockito.mock(Bitmap.class);
+
         when(BitmapFactory.decodeStream(Mockito.<InputStream>any())).thenReturn(mockBitmap);
         when(mockResponseBody.byteStream()).thenReturn(null);
-        when(mockMovieImageApiService.getMovieImageByPath(ImageSize.size_w154.toString(), "path")).thenReturn(Observable.just(mockResponseBody));
+        when(mockMovieImageApiService.getMovieImageByPath(ImageSize.size_w154.toString(), "path"))
+                .thenReturn(Observable.just(mockResponseBody));
+
         repository.getMovieImageRemote(ImageSize.size_w154, "path").subscribe(observer);
+
         observer.assertSubscribed();
         observer.assertComplete();
         observer.assertValue(mockBitmap);
@@ -108,33 +119,45 @@ public class MovieRepositoryTests {
 
     @Test
     public void shouldGetErrorResponseIfGetMovieJsonRequestFail() {
-        Throwable throwable = new Throwable("Request Fail");
+
         TestObserver<List<MovieHttpResult>> observer = new TestObserver<>();
+
+        Throwable throwable = new Throwable("Request Fail");
+
         when(mockMovieJSONApiService.getMoives()).thenReturn(Observable.error(throwable));
+
         repository.getMovieJSONRemote().subscribe(observer);
+
         observer.assertError(throwable);
     }
 
     @Test
     public void shouldGetMovieModelsFromRemoteIfStale() {
+
         TestObserver<List<MovieModel>> observer = new TestObserver<>();
+
         MovieModel movieModel = new MovieModel(1, "title", null);
         List<MovieModel> movieModelList = new ArrayList<>();
         movieModelList.add(movieModel);
+
         SharedPreferences mockSharedPreferences = mock(SharedPreferences.class);
         ConnectivityManager mockConnectivityManager = PowerMockito.mock(ConnectivityManager.class);
         NetworkInfo mockNetworkInfo = PowerMockito.mock((NetworkInfo.class));
+
         when(mockSharedPreferences.contains(Mockito.<String>any())).thenReturn(true);
         when(mockSharedPreferences.getLong(Mockito.<String>any(), anyLong())).thenReturn(System.currentTimeMillis() - 61 * 1000);
         when(mockContext.getSharedPreferences(Mockito.<String>any(), anyInt())).thenReturn(mockSharedPreferences);
         when(mockContext.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(mockConnectivityManager);
         when(mockConnectivityManager.getActiveNetworkInfo()).thenReturn(mockNetworkInfo);
         when(mockNetworkInfo.isConnectedOrConnecting()).thenReturn(true);
+
         repository = new MovieRepository(mockContext, mockDatabase, mockMovieJSONApiService, mockMovieImageApiService);
 
         MovieRepository spyRepository = (MovieRepository) spy(repository);
         doReturn(Observable.just(movieModelList)).when(spyRepository).getMovieModelsRemote();
+
         spyRepository.getMovieModels().subscribe(observer);
+
         observer.assertComplete();
         observer.assertValue(movieModelList);
     }

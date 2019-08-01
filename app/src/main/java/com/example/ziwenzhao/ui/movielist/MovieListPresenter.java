@@ -2,6 +2,7 @@ package com.example.ziwenzhao.ui.movielist;
 
 import android.util.Log;
 
+import com.example.ziwenzhao.Utils.EspressoIdlingResource;
 import com.example.ziwenzhao.models.MovieModel;
 
 import java.util.List;
@@ -27,17 +28,17 @@ public class MovieListPresenter implements MovieListActivityMVP.Presenter {
 
     @Override
     public void loadData() {
+
+        EspressoIdlingResource.increment();
         view.setLoading(true);
         subscriptions.add(model
                 .getMovieModels()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnTerminate(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        view.setLoading(false);
-                    }
-                })
+                .doOnTerminate(() -> {
+                    if (!EspressoIdlingResource.isIdle()) { EspressoIdlingResource.decrement(); }
+                    view.setLoading(false);
+                 })
                 .subscribeWith(new DisposableObserver<List<MovieModel>>() {
                     @Override
                     public void onNext(List<MovieModel> movieModels) {
