@@ -40,7 +40,7 @@ public class MovieRepository implements Repository{
 
     private Context context;
 
-    private long timeStamp;
+    private long lastSyncTimeStamp;
 
     private static final long EXPIRE_DURATION = 60 * 1000;
 
@@ -213,36 +213,29 @@ public class MovieRepository implements Repository{
 
     private void updateLastSyncTimeStamp() {
 
-        SharedPreferences sharedPref = context.getSharedPreferences("movie_list_app", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
+        SharedPreferences.Editor editor = getSharedPreferences().edit();
 
-        timeStamp = System.currentTimeMillis();
+        lastSyncTimeStamp = System.currentTimeMillis();
 
-        editor.putLong("lastSyncTimeStamp", timeStamp);
+        editor.putLong(context.getString(R.string.last_sync_timestamp), lastSyncTimeStamp);
         editor.commit();
     }
 
 
     private void getLastSyncTimeStamp() {
 
-        new AsyncTask<Void, Void, Void>() {
+        String lastSyncTimestampKey = context.getString(R.string.last_sync_timestamp);
 
-            @Override
-            protected Void doInBackground(Void... voids) {
-                String preferenceFileKey = context.getString(R.string.preference_file_key);
-                String lastSyncTimestampKey = context.getString(R.string.last_sync_timestamp);
+        SharedPreferences sharedPref = getSharedPreferences();
 
-                SharedPreferences sharedPref = context.getSharedPreferences(preferenceFileKey, Context.MODE_PRIVATE);
-                timeStamp = sharedPref.contains(lastSyncTimestampKey) ? sharedPref.getLong(lastSyncTimestampKey, 0) : 0;
-                return null;
-            }
-        }.execute();
+        lastSyncTimeStamp = sharedPref.contains(lastSyncTimestampKey) ? sharedPref.getLong(lastSyncTimestampKey, 0) : 0;
+
     }
 
 
     private boolean isStale() {
 
-        return timeStamp == 0 ? true : System.currentTimeMillis() - timeStamp > EXPIRE_DURATION;
+        return lastSyncTimeStamp == 0 ? true : System.currentTimeMillis() - lastSyncTimeStamp > EXPIRE_DURATION;
     }
 
 
@@ -252,5 +245,12 @@ public class MovieRepository implements Repository{
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+
+    private SharedPreferences getSharedPreferences() {
+
+        return context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
     }
 }
